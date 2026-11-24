@@ -100,3 +100,10 @@ def test_nome_bonito_e_cpm_do_blog():
     p = promos()["azul-premmia"]
     txt = telegram.formatar(p, None)
     assert "Premmia" in txt and "R$ 15,32" in txt
+
+
+def test_programa_aereo_vendendo_milhas_com_desconto():
+    from datetime import datetime
+    p = bonus.extrair("LATAM Pass vende milhas com 66% de desconto: milheiro a R$ 23,80",
+                      "x", datetime.fromisoformat("2026-11-20T10:00:00+00:00"), "T")
+    assert (p["tipo"], p["programa"], p["percentual"], p["milheiro"]) == ("compra", "latam", 66, 23.80)
