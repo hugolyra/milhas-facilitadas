@@ -110,10 +110,10 @@ def main(argv=None):
         if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
             n = len({telegram.chave(p) for p in vigentes})
             telegram.enviar(f"✅ Coletor funcionando: {n} promoções vigentes agora.")
-        grupos: dict[tuple, list[dict]] = {}
+        por_chave: dict[tuple, list[dict]] = {}
         for p in sorted(vigentes, key=lambda x: x["publicado"]):
-            grupos.setdefault(telegram.chave(p), []).append(p)
-        for grupo in grupos.values():
+            por_chave.setdefault(telegram.chave(p), []).append(p)
+        for grupo in por_chave.values():
             if any(p["id"] in enviados for p in grupo):
                 enviados.update(p["id"] for p in grupo)  # já avisada por outro blog
                 continue
