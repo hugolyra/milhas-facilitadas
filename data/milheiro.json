@@ -25,9 +25,9 @@
     "bonus_mediano": 0
    },
    "mercado": {
-    "valor": 16.0,
-    "fonte": "Cartões e Viagens",
-    "data": "2026-06-03"
+    "valor": 15.5,
+    "fonte": "Balcão de milhas (VCM)",
+    "data": "2026-11-24"
    }
   },
   "azul": {
@@ -42,9 +42,9 @@
     "bonus_mediano": 0
    },
    "mercado": {
-    "valor": 16.0,
-    "fonte": "Cartões e Viagens",
-    "data": "2026-06-03"
+    "valor": 13.0,
+    "fonte": "Balcão de milhas (VCM)",
+    "data": "2026-11-24"
    }
   },
   "latam": {
@@ -59,9 +59,9 @@
     "bonus_mediano": 27
    },
    "mercado": {
-    "valor": 25.5,
-    "fonte": "Cartões e Viagens",
-    "data": "2026-06-03"
+    "valor": 24.0,
+    "fonte": "Balcão de milhas (VCM)",
+    "data": "2026-11-24"
    }
   }
  }
