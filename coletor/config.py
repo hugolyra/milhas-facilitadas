@@ -57,12 +57,13 @@ ORIGENS = {
 # O coletor sobrescreve com o menor "milheiro a partir de R$ X" visto nos últimos 60 dias.
 CUSTO_ORIGEM_PADRAO = {"livelo": 30.0, "esfera": 30.0}
 
-# Preço de mercado (venda das milhas para balcões), atualizado manualmente com data e fonte.
-# Fonte: Cartões e Viagens, cotação do milheiro (alteração em 03/06/2026).
+# Preço de mercado (o que os balcões de compra pagam pelo milheiro), atualizado à mão com data e fonte.
+# Fonte: ofertas no balcão de milhas da comunidade VCM (Telegram) em 24/11/2026;
+# o resumo diário do balcão de 26/09/2026 mostrava faixas parecidas (LATAM 24-25, Smiles 15-16, Azul 13-14).
 MERCADO = {
-    "smiles": {"valor": 16.0, "fonte": "Cartões e Viagens", "data": "2026-06-03"},
-    "azul": {"valor": 16.0, "fonte": "Cartões e Viagens", "data": "2026-06-03"},
-    "latam": {"valor": 25.5, "fonte": "Cartões e Viagens", "data": "2026-06-03"},
+    "smiles": {"valor": 15.5, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
+    "azul": {"valor": 13.0, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
+    "latam": {"valor": 24.0, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
 }
 
 # Quais origens transferem para qual programa (paridade 1:1 nos aéreos nacionais).
