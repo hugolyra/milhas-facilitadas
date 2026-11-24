@@ -204,7 +204,7 @@ function renderHoje(){
 
   const best=vig.filter(p=>p.tipo==='transferencia').sort((a,b)=>b.percentual-a.percentual)[0];
   $('#manchete').textContent=best?`Hoje: até ${best.percentual}% de bônus para ${NOME(best.programa)} vindo de ${NOME(best.origem)}`:'Hoje não há transferência bonificada vigente';
-  const k=Object.entries(MIL?.programas||{}).map(([p,v])=>`<div class="kpi"><b>${brl(v.aquisicao.valor)}</b><span>milheiro ${esc(NOME(p))} hoje</span></div>`);
+  const k=Object.entries(MIL?.programas||{}).map(([p,v])=>`<div class="kpi"><b>${brl(v.aquisicao.valor)}</b><span>milheiro ${esc(NOME(p))} hoje${v.aquisicao.bonus?' via '+esc(NOME(v.aquisicao.via)):''}</span></div>`);
   k.unshift(`<div class="kpi"><b>${vig.length}</b><span>promoções vigentes</span></div>`);
   $('#kpis').innerHTML=k.join('');
 }
@@ -237,12 +237,15 @@ function renderSim(){
   if(!mil||!cash){$('#simres').innerHTML='<div class="empty">Preencha milhas e preço em dinheiro.</div>';return}
   const v=MIL?.programas?.[prog];
   const rende=(cash-tax)/(mil/1000);
-  const ref=v?.aquisicao_tipica?.valor;
-  const veredito=ref?(rende>ref*1.15?`<span class="tag ok">Vale a pena</span> cada milheiro rende ${brl(rende)}, acima do custo típico de ${brl(ref)}.`
-     :rende>=ref?`<span class="tag warn">No limite</span> cada milheiro rende ${brl(rende)}, perto do custo típico de ${brl(ref)}.`
-     :`<span class="tag warn">Melhor pagar em dinheiro</span> cada milheiro renderia só ${brl(rende)}; produzir milhas custa ${brl(ref)}.`):'';
-  // como completar o saldo
+  // Se já tem as milhas, o custo de usá-las é o que daria para vender (mercado).
+  // Se precisa conseguir, o custo é o de produzir milhas esperando uma campanha (típico).
   const tem=cart[prog]?.saldo||0,falta=Math.max(0,mil-tem);
+  const usaMercado=falta===0&&v?.mercado;
+  const ref=usaMercado?v.mercado.valor:v?.aquisicao_tipica?.valor;
+  const base=usaMercado?'do que os balcões pagam pelo milheiro':'do custo típico de conseguir milhas';
+  const veredito=ref?(rende>ref*1.15?`<span class="tag ok">Vale a pena</span> cada milheiro rende ${brl(rende)}, acima ${base} (${brl(ref)}).`
+     :rende>=ref?`<span class="tag warn">No limite</span> cada milheiro rende ${brl(rende)}, perto ${base} (${brl(ref)}).`
+     :`<span class="tag warn">Melhor pagar em dinheiro</span> cada milheiro renderia só ${brl(rende)}, abaixo ${base} (${brl(ref)}).`):'';
   let opc='';
   if(falta>0){
     const linhas=[];
