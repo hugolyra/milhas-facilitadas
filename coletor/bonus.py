@@ -19,7 +19,7 @@ RE_ATE_DATA = re.compile(
     r"at[eé]\s+(?:[a-zçáéíóú-]+,?\s+)?(?:o\s+)?(?:dia\s+)?(\d{1,2})(?![\d%])(?!\s?%)"
     r"(?:/(\d{1,2}))?(?:\s+de\s+([a-zç]+))?", re.I)
 RE_CPM = re.compile(r"CPM\s+(?:a\s+partir\s+de|de|por)?\s*R\$\s?(\d{1,3}(?:,\d{1,2})?)", re.I)
-RE_ATE_HOJE = re.compile(r"at[eé]\s+hoje|s[oó]\s+hoje|termina(?:m)?\s+hoje|[uú]ltimo\s+dia", re.I)
+RE_ATE_HOJE = re.compile(r"at[eé]\s+hoje|s[oó]\s+hoje|termina(?:m)?\s+hoje|[uú]ltimo\s+dia|[uú]ltimas\s+horas", re.I)
 
 
 def _sem_acento(s: str) -> str:
@@ -100,7 +100,30 @@ def ler_rss(xml: str, fonte: str) -> list[dict]:
     return saida
 
 
+DIAS_PROVAVEL = 3  # promoção sem prazo no título costuma durar poucos dias
+
+
 def status(promo: dict, hoje: date) -> str:
+    """ativa | provavel (sem prazo, publicada há até 3 dias) | verificar | encerrada"""
     if not promo.get("prazo"):
-        return "verificar"
+        pub = datetime.fromisoformat(promo["publicado"]).date()
+        return "provavel" if (hoje - pub).days <= DIAS_PROVAVEL else "verificar"
     return "ativa" if date.fromisoformat(promo["prazo"]) >= hoje else "encerrada"
+
+
+VIGENTES = ("ativa", "provavel")
+
+
+def completar(promos: list[dict]) -> None:
+    """Títulos como "Últimas horas para ganhar 27% ... Livelo" não citam o programa:
+    herda de outra promoção com a mesma origem e o mesmo % publicada até 3 dias antes ou depois."""
+    for p in promos:
+        if p["programa"]:
+            continue
+        t = datetime.fromisoformat(p["publicado"])
+        for q in promos:
+            if (q is not p and q["programa"] and q["tipo"] == p["tipo"] and q["origem"] == p["origem"]
+                    and q["percentual"] == p["percentual"]
+                    and abs((datetime.fromisoformat(q["publicado"]) - t).days) <= DIAS_PROVAVEL):
+                p["programa"] = q["programa"]
+                break

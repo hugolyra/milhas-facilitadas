@@ -65,6 +65,7 @@ def main(argv=None):
     hoje = date.today()
     promos = _ler("promocoes.json", {})
     print(f"novas promoções no RSS: {coletar_rss(promos)}")
+    bonus.completar(list(promos.values()))
     for p in promos.values():
         p["status"] = bonus.status(p, hoje)
     _gravar("promocoes.json", promos)
@@ -81,7 +82,7 @@ def main(argv=None):
     if "--sem-alerta" not in argv:
         enviados = set(_ler("notificados.json", []))
         for p in promos.values():
-            if p["status"] == "ativa" and p["id"] not in enviados:
+            if p["status"] in bonus.VIGENTES and p["programa"] and p["id"] not in enviados:
                 telegram.enviar(telegram.formatar(p, ref))
                 enviados.add(p["id"])
         for linha in sm[:5]:

@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 from statistics import median
 
 from . import config
-from .bonus import status
+from .bonus import VIGENTES, status
 
 
 def custo_origem(promos: list[dict], hoje: date) -> dict[str, dict]:
@@ -33,7 +33,7 @@ def _bonus(promos, programa, origem, hoje, dias=None, so_ativas=False):
             continue
         if p["origem"] not in (origem, "todos"):
             continue
-        if so_ativas and status(p, hoje) != "ativa":
+        if so_ativas and status(p, hoje) not in VIGENTES:
             continue
         if dias and datetime.fromisoformat(p["publicado"]).date() < hoje - timedelta(days=dias):
             continue
@@ -59,7 +59,7 @@ def referencias(promos: list[dict], hoje: date | None = None) -> dict:
                 melhor_tipica = (tipica, org, median(hist) if hist else 0)
         # CPM já calculado pelos blogs para promoções ativas deste programa (ex.: "CPM a partir de R$ 15,32")
         cpms = [(p["cpm"], p["origem"], p["percentual"]) for p in promos
-                if p.get("cpm") and p["programa"] == prog and status(p, hoje) != "encerrada"]
+                if p.get("cpm") and p["programa"] == prog and status(p, hoje) in VIGENTES]
         if cpms and min(cpms)[0] < melhor_agora[0]:
             melhor_agora = min(cpms)
         saida[prog] = {
