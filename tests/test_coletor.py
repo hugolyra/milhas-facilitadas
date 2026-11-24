@@ -83,3 +83,19 @@ def test_ultimas_horas_herda_programa_e_fica_provavel():
     assert a["programa"] == "latam" and a["prazo"] == "2026-11-24"
     assert bonus.status(b, HOJE) == "provavel"
     assert bonus.status(b, date(2026, 11, 30)) == "verificar"
+
+
+def test_mensagem_unica_para_mesma_promocao_em_dois_blogs():
+    p1 = {"tipo": "transferencia", "programa": "latam", "origem": "livelo", "percentual": 27, "milheiro": None,
+          "cpm": None, "prazo": None, "link": "https://a/1", "fonte": "Blog A"}
+    p2 = {**p1, "prazo": "2026-11-24", "link": "https://b/2", "fonte": "Blog B"}
+    assert telegram.chave(p1) == telegram.chave(p2)
+    txt = telegram.formatar(p1, None, [p1, p2])
+    assert "LATAM Pass" in txt and "Livelo" in txt and "Até 24/11" in txt
+    assert "Blog A" in txt and "Blog B" in txt
+
+
+def test_nome_bonito_e_cpm_do_blog():
+    p = promos()["azul-premmia"]
+    txt = telegram.formatar(p, None)
+    assert "Premmia" in txt and "R$ 15,32" in txt
