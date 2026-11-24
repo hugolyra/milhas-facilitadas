@@ -63,6 +63,23 @@
     "fonte": "Balcão de milhas (VCM)",
     "data": "2026-11-24"
    }
+  },
+  "iberia": {
+   "aquisicao": {
+    "valor": 60.0,
+    "via": "esfera",
+    "bonus": 0
+   },
+   "aquisicao_tipica": {
+    "valor": 60.0,
+    "via": "esfera",
+    "bonus_mediano": 0
+   },
+   "mercado": {
+    "valor": 50.0,
+    "fonte": "Resumo do balcão (VCM), faixa 42-58",
+    "data": "2026-09-26"
+   }
   }
  }
 }
