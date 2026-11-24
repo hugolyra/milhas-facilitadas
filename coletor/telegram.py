@@ -9,6 +9,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from . import config
+
 SITE = "https://hugolyra.github.io/milhas-facilitadas/"
 
 NOMES = {"smiles": "Smiles", "azul": "Azul Fidelidade", "latam": "LATAM Pass", "livelo": "Livelo",
@@ -48,10 +50,17 @@ def formatar(p: dict, ref: dict | None = None, fontes: list[dict] | None = None)
         else:
             linhas.append("Transferindo de bancos e parceiros")
         custo = (ref or {}).get("custo_origem", {}).get(p.get("origem"))
+        paridade = config.TRANSFERENCIAS.get(p.get("programa"), {}).get(p.get("origem"), 1.0)
+        unidade = "1.000 Avios" if p.get("programa") == "iberia" else "Milheiro"
         if cpm:
-            linhas.append(f"Milheiro a partir de {_reais(cpm)}")
+            linhas.append(f"{unidade} a partir de {_reais(cpm)}")
         elif custo and p.get("percentual") is not None:
-            linhas.append(f"Milheiro a partir de {_reais(custo['valor'] / (1 + p['percentual'] / 100))}")
+            valor = custo["valor"] / (1 + p["percentual"] / 100) / paridade
+            linhas.append(f"{unidade} {'saem' if unidade.startswith('1.000') else 'sai'} por ~{_reais(valor)}"
+                          + (f" (paridade {1 / paridade:g}:1)".replace(".", ",") if paridade != 1 else ""))
+            mercado = (ref or {}).get("programas", {}).get(p.get("programa"), {}).get("mercado")
+            if mercado and valor < mercado["valor"]:
+                linhas.append(f"Abaixo do preço de mercado (~{_reais(mercado['valor'])}): bom momento")
     else:
         desc = f" com até {p['percentual']}% de desconto" if p.get("percentual") else ""
         linhas = [f"🛒 <b>{e(prog)}: compra de pontos{desc}</b>"]
