@@ -7,10 +7,24 @@ import urllib.parse
 import urllib.request
 
 NOMES = {"smiles": "Smiles", "azul": "Azul Fidelidade", "latam": "LATAM Pass", "livelo": "Livelo",
-         "esfera": "Esfera", "accor": "ALL Accor", "todos": "todos os parceiros"}
+         "esfera": "Esfera", "accor": "ALL Accor", "todos": "todos os parceiros", "inter": "Inter Loop",
+         "premmia": "Premmia", "c6": "C6 Bank", "itau": "Itaú", "bb": "Banco do Brasil", "kmv": "KM de Vantagens",
+         "bradesco": "Bradesco", "caixa": "Caixa", "porto": "Porto Bank", "xp": "XP", "btg": "BTG",
+         "qatar": "Qatar Privilege Club", "iberia": "Iberia", "tap": "TAP Miles&Go"}
 
 
-def formatar(p: dict, ref: dict | None = None) -> str:
+def chave(p: dict) -> tuple:
+    """Mesma promoção publicada por blogs diferentes tem a mesma chave."""
+    return (p["tipo"], p.get("programa"), p.get("origem"), p.get("percentual"))
+
+
+def formatar(p: dict, ref: dict | None = None, fontes: list[dict] | None = None) -> str:
+    """fontes: outras publicações da mesma promoção (viram links extras numa só mensagem)."""
+    fontes = fontes or [p]
+    if not p.get("prazo"):
+        p = {**p, "prazo": next((f["prazo"] for f in fontes if f.get("prazo")), None)}
+    if not p.get("cpm"):
+        p = {**p, "cpm": next((f["cpm"] for f in fontes if f.get("cpm")), None)}
     e = html.escape
     prog = NOMES.get(p.get("programa"), p.get("programa") or "?")
     if p["tipo"] == "transferencia":
@@ -25,13 +39,18 @@ def formatar(p: dict, ref: dict | None = None) -> str:
     if p.get("milheiro"):
         linhas.append(f"Milheiro a partir de R$ {p['milheiro']:.2f}".replace(".", ","))
     custo = (ref or {}).get("custo_origem", {}).get(p.get("origem"))
-    if p["tipo"] == "transferencia" and custo and p.get("percentual") is not None:
+    if p.get("cpm"):
+        linhas.append(f"Milheiro {e(prog)} a partir de R$ {p['cpm']:.2f} (cálculo do blog)".replace(".", ",", 1))
+    elif p["tipo"] == "transferencia" and custo and p.get("percentual") is not None:
         valor = custo["valor"] / (1 + p["percentual"] / 100)
         linhas.append(f"Milheiro {e(prog)} sai por ~R$ {valor:.2f} com esse bônus".replace(".", ","))
     if p.get("prazo"):
         a, m, d = p["prazo"].split("-")
         linhas.append(f"Até {d}/{m}")
-    linhas.append(f'<a href="{e(p["link"])}">Detalhes ({e(p["fonte"])})</a>')
+    vistos = {}
+    for f in fontes:
+        vistos.setdefault(f["fonte"], f["link"])
+    linhas.append(" · ".join(f'<a href="{e(l)}">{e(n)}</a>' for n, l in vistos.items()))
     return "\n".join(linhas)
 
 

@@ -86,9 +86,15 @@ def main(argv=None):
         if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
             telegram.enviar(f"✅ Rodada manual do coletor: {len(vigentes)} promoções vigentes, "
                             f"{len(promos)} no histórico.")
+        grupos: dict[tuple, list[dict]] = {}
         for p in sorted(vigentes, key=lambda x: x["publicado"]):
-            if p["id"] not in enviados and telegram.enviar(telegram.formatar(p, ref)):
-                enviados.add(p["id"])  # só marca como enviado se o Telegram confirmou
+            grupos.setdefault(telegram.chave(p), []).append(p)
+        for grupo in grupos.values():
+            if any(p["id"] in enviados for p in grupo):
+                enviados.update(p["id"] for p in grupo)  # já avisada por outro blog
+                continue
+            if telegram.enviar(telegram.formatar(grupo[0], ref, grupo)):
+                enviados.update(p["id"] for p in grupo)  # só marca se o Telegram confirmou
         for linha in sm[:5]:
             telegram.enviar(f"📄 Página oficial nova/alterada\n{linha}")
         _gravar("alertas_enviados.json", sorted(enviados))
