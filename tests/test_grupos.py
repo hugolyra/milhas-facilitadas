@@ -84,3 +84,15 @@ def test_interessa_recife():
     e = grupos.ler_emissao(NACIONAL.replace("Natal (NAT)", "Recife (REC)"), Q, "x")
     assert grupos.interessa(e)
     assert not grupos.interessa(grupos.ler_emissao(NACIONAL, Q, "y"))
+
+
+def test_alerta_esfera_iberia_com_paridade():
+    from coletor import bonus
+    p = bonus.extrair("Esfera oferece 25% de bônus nas transferências de pontos para o Iberia Club até 30 de novembro",
+                      "z", Q, "T")
+    assert (p["programa"], p["origem"], p["percentual"]) == ("iberia", "esfera", 25)
+    ref = milheiro.referencias([p], Q.date())
+    txt = telegram.formatar(p, ref)
+    # R$ 30 por mil Esfera ÷ 1,25 ÷ 0,5 = R$ 48 por 1.000 Avios, abaixo do mercado de R$ 50
+    assert "1.000 Avios saem por ~R$ 48,00 (paridade 2:1)" in txt and "Abaixo do preço de mercado" in txt
+    assert ref["programas"]["iberia"]["aquisicao"]["valor"] == 48.0
