@@ -4,6 +4,7 @@ Uso: python -m coletor.run [--sem-sitemap] [--sem-alerta]
 Grava em data/: promocoes.json, milheiro.json, sitemap_estado.json, notificados.json
 """
 import json
+import os
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -80,14 +81,17 @@ def main(argv=None):
         _gravar("sitemap_estado.json", estado)
 
     if "--sem-alerta" not in argv:
-        enviados = set(_ler("notificados.json", []))
-        for p in promos.values():
-            if p["status"] in bonus.VIGENTES and p["programa"] and p["id"] not in enviados:
-                telegram.enviar(telegram.formatar(p, ref))
-                enviados.add(p["id"])
+        enviados = set(_ler("alertas_enviados.json", []))
+        vigentes = [p for p in promos.values() if p["status"] in bonus.VIGENTES and p["programa"]]
+        if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
+            telegram.enviar(f"✅ Rodada manual do coletor: {len(vigentes)} promoções vigentes, "
+                            f"{len(promos)} no histórico.")
+        for p in sorted(vigentes, key=lambda x: x["publicado"]):
+            if p["id"] not in enviados and telegram.enviar(telegram.formatar(p, ref)):
+                enviados.add(p["id"])  # só marca como enviado se o Telegram confirmou
         for linha in sm[:5]:
             telegram.enviar(f"📄 Página oficial nova/alterada\n{linha}")
-        _gravar("notificados.json", sorted(enviados))
+        _gravar("alertas_enviados.json", sorted(enviados))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 import html
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -41,5 +42,12 @@ def enviar(texto: str) -> bool:
         return False
     dados = urllib.parse.urlencode({"chat_id": chat, "text": texto, "parse_mode": "HTML",
                                     "disable_web_page_preview": "true"}).encode()
-    with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", dados, timeout=20) as r:
-        return json.load(r).get("ok", False)
+    try:
+        with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", dados, timeout=20) as r:
+            return json.load(r).get("ok", False)
+    except urllib.error.HTTPError as e:
+        # Ex.: 400 "chat not found" (ID do canal errado) ou 403 (bot não é admin do canal)
+        print(f"[telegram] erro {e.code}: {e.read().decode('utf-8', 'replace')[:300]}")
+    except (urllib.error.URLError, TimeoutError) as e:
+        print(f"[telegram] falha de rede: {e}")
+    return False
