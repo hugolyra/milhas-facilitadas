@@ -84,8 +84,8 @@ def main(argv=None):
         enviados = set(_ler("alertas_enviados.json", []))
         vigentes = [p for p in promos.values() if p["status"] in bonus.VIGENTES and p["programa"]]
         if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
-            telegram.enviar(f"✅ Rodada manual do coletor: {len(vigentes)} promoções vigentes, "
-                            f"{len(promos)} no histórico.")
+            n = len({telegram.chave(p) for p in vigentes})
+            telegram.enviar(f"✅ Coletor funcionando: {n} promoções vigentes agora.")
         grupos: dict[tuple, list[dict]] = {}
         for p in sorted(vigentes, key=lambda x: x["publicado"]):
             grupos.setdefault(telegram.chave(p), []).append(p)
