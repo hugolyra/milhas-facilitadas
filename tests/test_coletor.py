@@ -71,3 +71,15 @@ def test_titulos_reais_de_24_11_2026():
     assert (ps["azul-inter"]["programa"], ps["azul-inter"]["origem"]) == ("azul", "inter")
     p = ps["latam-livelo"]
     assert (p["programa"], p["origem"], p["percentual"], p["prazo"]) == ("latam", "livelo", 27, "2026-11-24")
+
+
+def test_ultimas_horas_herda_programa_e_fica_provavel():
+    from datetime import datetime
+    base = {"tipo": "transferencia", "origem": "livelo", "percentual": 27, "prazo": None}
+    a = bonus.extrair("Últimas horas para ganhar 27% de bônus nas transferências de pontos Livelo",
+                      "u", datetime.fromisoformat("2026-11-24T17:30:29+00:00"), "T")
+    b = {**base, "programa": "latam", "publicado": "2026-11-23T22:44:54+00:00"}
+    bonus.completar([a, b])
+    assert a["programa"] == "latam" and a["prazo"] == "2026-11-24"
+    assert bonus.status(b, HOJE) == "provavel"
+    assert bonus.status(b, date(2026, 11, 30)) == "verificar"
