@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 from datetime import date
 from pathlib import Path
 
-from . import bonus, config, http, milheiro, telegram
+from . import bonus, config, grupos, http, milheiro, telegram
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 
@@ -66,12 +66,36 @@ def main(argv=None):
     hoje = date.today()
     promos = _ler("promocoes.json", {})
     print(f"novas promoções no RSS: {coletar_rss(promos)}")
+
+    # Grupos do Telegram (só com a sessão configurada)
+    emissoes = _ler("emissoes.json", [])
+    mercado_auto = _ler("mercado_auto.json", {})
+    novas_emissoes = []
+    if "--sem-grupos" not in argv and (g := grupos.coletar()):
+        for p in g["promos"]:
+            promos.setdefault(p["id"], p)
+        ids = {e["id"] for e in emissoes}
+        novas_emissoes = [e for e in g["emissoes"] if e["id"] not in ids]
+        emissoes = grupos.mesclar_emissoes(emissoes, g["emissoes"])
+        if g["resumo"]:
+            for prog, v in g["resumo"]["valores"].items():
+                mercado_auto[prog] = {"valor": v, "fonte": "Resumo diário do balcão de milhas",
+                                      "data": g["resumo"]["data"][:10]}
+        for prog, v in grupos.mercado_por_ofertas(g["ofertas"]).items():
+            if prog not in (g["resumo"] or {}).get("valores", {}):
+                mercado_auto[prog] = {"valor": v, "fonte": "Mediana das ofertas do balcão",
+                                      "data": date.today().isoformat()}
+        print(f"grupos: {len(g['emissoes'])} alertas de passagem ({len(novas_emissoes)} novos), "
+              f"{len(g['promos'])} promoções, mercado: {mercado_auto}")
+    _gravar("emissoes.json", emissoes)
+    _gravar("mercado_auto.json", mercado_auto)
+
     bonus.completar(list(promos.values()))
     for p in promos.values():
         p["status"] = bonus.status(p, hoje)
     _gravar("promocoes.json", promos)
 
-    ref = milheiro.referencias(list(promos.values()), hoje)
+    ref = milheiro.referencias(list(promos.values()), hoje, mercado_auto)
     _gravar("milheiro.json", ref)
 
     sm = []
@@ -95,6 +119,11 @@ def main(argv=None):
                 continue
             if telegram.enviar(telegram.formatar(grupo[0], ref, grupo)):
                 enviados.update(p["id"] for p in grupo)  # só marca se o Telegram confirmou
+        enviadas_e = set(_ler("emissoes_enviadas.json", []))
+        for e in novas_emissoes:
+            if grupos.interessa(e) and e["id"] not in enviadas_e and telegram.enviar(telegram.formatar_emissao(e)):
+                enviadas_e.add(e["id"])
+        _gravar("emissoes_enviadas.json", sorted(enviadas_e))
         for linha in sm[:5]:
             telegram.enviar(f"📄 Página oficial nova/alterada\n{linha}")
         _gravar("alertas_v2.json", sorted(enviados))

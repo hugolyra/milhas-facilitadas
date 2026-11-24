@@ -41,8 +41,19 @@ def _bonus(promos, programa, origem, hoje, dias=None, so_ativas=False):
     return vals
 
 
-def referencias(promos: list[dict], hoje: date | None = None) -> dict:
+def mercado_atual(auto: dict | None) -> dict:
+    """Preço de mercado: o lido dos grupos (resumo do balcão ou mediana das ofertas) vence o manual."""
+    saida = dict(config.MERCADO)
+    for prog, info in (auto or {}).items():
+        manual = saida.get(prog)
+        if not manual or (info.get("data") or "") >= (manual.get("data") or ""):
+            saida[prog] = info
+    return saida
+
+
+def referencias(promos: list[dict], hoje: date | None = None, mercado_auto: dict | None = None) -> dict:
     hoje = hoje or date.today()
+    mercado = mercado_atual(mercado_auto)
     origem = custo_origem(promos, hoje)
     saida = {}
     for prog, rotas in config.TRANSFERENCIAS.items():
@@ -66,7 +77,7 @@ def referencias(promos: list[dict], hoje: date | None = None) -> dict:
             "aquisicao": {"valor": round(melhor_agora[0], 2), "via": melhor_agora[1], "bonus": melhor_agora[2]},
             "aquisicao_tipica": {"valor": round(melhor_tipica[0], 2), "via": melhor_tipica[1],
                                  "bonus_mediano": melhor_tipica[2]},
-            "mercado": config.MERCADO.get(prog),
+            "mercado": mercado.get(prog),
         }
     return {"gerado_em": hoje.isoformat(), "custo_origem": origem, "programas": saida}
 

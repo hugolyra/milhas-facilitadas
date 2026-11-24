@@ -15,12 +15,13 @@ NOMES = {"smiles": "Smiles", "azul": "Azul Fidelidade", "latam": "LATAM Pass", "
          "esfera": "Esfera", "accor": "ALL Accor", "todos": "todos os parceiros", "inter": "Inter Loop",
          "premmia": "Premmia", "c6": "C6 Bank", "itau": "Itaú", "bb": "Banco do Brasil", "kmv": "KM de Vantagens",
          "bradesco": "Bradesco", "caixa": "Caixa", "porto": "Porto Bank", "xp": "XP", "btg": "BTG",
-         "qatar": "Qatar Privilege Club", "iberia": "Iberia", "tap": "TAP Miles&Go"}
+         "qatar": "Qatar Privilege Club", "iberia": "Iberia (Avios)", "tap": "TAP Miles&Go"}
 
 # Site oficial de cada programa: é para lá que o usuário vai, não para o blog.
 SITES = {"smiles": "https://www.smiles.com.br/", "azul": "https://www.voeazul.com.br/br/pt/programa-fidelidade",
          "latam": "https://latampass.latam.com/pt_br/", "livelo": "https://www.livelo.com.br/",
-         "esfera": "https://www.esfera.com.vc/", "accor": "https://all.accor.com/"}
+         "esfera": "https://www.esfera.com.vc/", "accor": "https://all.accor.com/",
+         "iberia": "https://www.iberia.com/br/iberiaclub/"}
 
 
 def chave(p: dict) -> tuple:
@@ -87,3 +88,29 @@ def enviar(texto: str) -> bool:
     except (urllib.error.URLError, TimeoutError) as e:
         print(f"[telegram] falha de rede: {e}")
     return False
+
+
+def formatar_emissao(e: dict) -> str:
+    """Alerta de passagem em milhas, no formato curto: rota, custo, cabine, datas."""
+    esc = html.escape
+    prog = NOMES.get(e.get("programa"), e.get("programa_texto") or "?")
+    linhas = [f"✈️ <b>{esc(e['origem']['cidade'])} ({e['origem']['iata']}) → "
+              f"{esc(e['destino']['cidade'])} ({e['destino']['iata']})</b>"]
+    if e.get("milhas"):
+        mil = f"{e['milhas'] / 1000:g}".replace(".", ",")
+        linhas.append(f"{mil} mil milhas {esc(prog)}{' o trecho' if e.get('por_trecho') else ''} + taxas")
+    elif e.get("custo_texto"):
+        linhas.append(f"{esc(e['custo_texto'])} ({esc(prog)})")
+    extra = " · ".join(x for x in [e.get("trajeto"), e.get("cabine"), e.get("companhia")] if x)
+    if extra:
+        linhas.append(esc(extra))
+    if e.get("datas"):
+        datas = e["datas"] if len(e["datas"]) <= 300 else e["datas"][:300].rsplit("\n", 1)[0] + "\n…"
+        linhas.append(f"Datas: {esc(datas)}")
+    linhas.append("Disponibilidade muda rápido: confira antes de transferir.")
+    acoes = []
+    if (u := SITES.get(e.get("programa"))):
+        acoes.append(f'<a href="{esc(u)}">Abrir {esc(prog)}</a>')
+    acoes.append(f'<a href="{SITE}#passagens">Ver todas</a>')
+    linhas.append(" · ".join(acoes))
+    return "\n".join(linhas)

@@ -30,7 +30,7 @@ PROGRAMAS = {
     "latam": ["latam pass", "latam"],
     "accor": ["all accor", "accor"],
     "qatar": ["qatar", "privilege club"],
-    "iberia": ["iberia", "avios"],
+    "iberia": ["iberia club", "iberia plus", "iberia", "avios"],
     "tap": ["tap", "miles&go"],
 }
 
@@ -61,14 +61,31 @@ CUSTO_ORIGEM_PADRAO = {"livelo": 30.0, "esfera": 30.0}
 # Fonte: ofertas no balcão de milhas da comunidade VCM (Telegram) em 24/11/2026;
 # o resumo diário do balcão de 26/09/2026 mostrava faixas parecidas (LATAM 24-25, Smiles 15-16, Azul 13-14).
 MERCADO = {
+    "iberia": {"valor": 50.0, "fonte": "Resumo do balcão (VCM), faixa 42-58", "data": "2026-09-26"},
     "smiles": {"valor": 15.5, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
     "azul": {"valor": 13.0, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
     "latam": {"valor": 24.0, "fonte": "Balcão de milhas (VCM)", "data": "2026-11-24"},
 }
 
-# Quais origens transferem para qual programa (paridade 1:1 nos aéreos nacionais).
+# Quais origens transferem para qual programa e quantas milhas chegam por ponto enviado.
+# Aéreos nacionais: 1:1. Iberia (Avios): Esfera 2:1 (mínimo 15 mil) e Livelo 3,5:1.
 TRANSFERENCIAS = {
     "smiles": {"livelo": 1.0, "esfera": 1.0},
     "azul": {"livelo": 1.0, "esfera": 1.0},
     "latam": {"livelo": 1.0, "esfera": 1.0},
+    "iberia": {"livelo": 1 / 3.5, "esfera": 0.5},
 }
+
+# ---- Leitura dos grupos do Telegram (conta do usuário, via Telethon) ----
+# Só roda se TELEGRAM_API_ID, TELEGRAM_API_HASH e TELEGRAM_SESSION existirem nos segredos.
+GRUPOS = {
+    -1001779153745: "AVDM - Alertas",          # emissões nacionais, internacionais, executiva, promoções
+    -1001449628221: "VCM - Alertas Promo",     # promoções e resumo diário do balcão
+    -1002500984698: "VCM - Resumo",
+    -1001502516880: "VCM - Balcão de Milhas",  # ofertas de compra de milhas (preço de mercado)
+}
+MENSAGENS_POR_GRUPO = 80
+
+# Alertas de passagem que vão para o Telegram do usuário: rotas que tocam estes aeroportos.
+# Vazio = todas. O site mostra todas, com filtro.
+AEROPORTOS_INTERESSE = ["REC"]
