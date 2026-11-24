@@ -184,9 +184,11 @@ function cardPromo(p){
   let titulo,detalhe='';
   if(p.tipo==='transferencia'){
     titulo=`<div class="pct">+${p.percentual}%</div><h3>${esc(NOME(p.programa))}</h3><div>bônus transferindo de <b>${esc(NOME(p.origem))}</b></div>`;
-    const base=custoOrigem(p.origem);
-    const m=p.cpm||(base?base/(1+p.percentual/100):null);
-    if(m)detalhe=`<div>Milheiro sai por <b>${brl(m)}</b>${p.cpm?'':' <span class="small">(pontos a '+brl(base)+')</span>'}</div>`;
+    const base=custoOrigem(p.origem),par=PAR(p.programa,p.origem);
+    const m=p.cpm||(base?base/(1+p.percentual/100)/par:null);
+    const merc=MIL?.programas?.[p.programa]?.mercado?.valor;
+    if(m)detalhe=`<div>${p.programa==='iberia'?'1.000 Avios saem':'Milheiro sai'} por <b>${brl(m)}</b>${p.cpm?'':' <span class="small">(pontos a '+brl(base)+(par!==1?`, paridade ${par===0.5?'2':'3,5'}:1`:'')+')</span>'}</div>`+
+      (merc&&m<merc?`<div><span class="tag ok">Abaixo do mercado (${brl(merc)})</span></div>`:'');
   }else{
     titulo=`<div class="pct">${p.percentual?'-'+p.percentual+'%':'Oferta'}</div><h3>Compra de pontos ${esc(NOME(p.programa))}</h3>`;
     if(p.milheiro)detalhe=`<div>Milheiro a partir de <b>${brl(p.milheiro)}</b></div>`;
