@@ -1,0 +1,68 @@
+{
+ "gerado_em": "2026-11-24",
+ "custo_origem": {
+  "livelo": {
+   "valor": 30.0,
+   "fonte": "preço-alvo 2026 (config)",
+   "data": null
+  },
+  "esfera": {
+   "valor": 30.0,
+   "fonte": "preço-alvo 2026 (config)",
+   "data": null
+  }
+ },
+ "programas": {
+  "smiles": {
+   "aquisicao": {
+    "valor": 30.0,
+    "via": "livelo",
+    "bonus": 0
+   },
+   "aquisicao_tipica": {
+    "valor": 30.0,
+    "via": "livelo",
+    "bonus_mediano": 0
+   },
+   "mercado": {
+    "valor": 16.0,
+    "fonte": "Cartões e Viagens",
+    "data": "2026-06-03"
+   }
+  },
+  "azul": {
+   "aquisicao": {
+    "valor": 15.32,
+    "via": "premmia",
+    "bonus": 120
+   },
+   "aquisicao_tipica": {
+    "valor": 30.0,
+    "via": "livelo",
+    "bonus_mediano": 0
+   },
+   "mercado": {
+    "valor": 16.0,
+    "fonte": "Cartões e Viagens",
+    "data": "2026-06-03"
+   }
+  },
+  "latam": {
+   "aquisicao": {
+    "valor": 23.62,
+    "via": "livelo",
+    "bonus": 27
+   },
+   "aquisicao_tipica": {
+    "valor": 23.62,
+    "via": "livelo",
+    "bonus_mediano": 27.0
+   },
+   "mercado": {
+    "valor": 25.5,
+    "fonte": "Cartões e Viagens",
+    "data": "2026-06-03"
+   }
+  }
+ }
+}
