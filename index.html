@@ -69,6 +69,7 @@ footer{border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
 <main class="band"><div class="wrap">
   <nav class="tabs" role="tablist">
     <button role="tab" data-t="hoje" aria-selected="true">Hoje</button>
+    <button role="tab" data-t="passagens" aria-selected="false">Passagens em milhas</button>
     <button role="tab" data-t="carteira" aria-selected="false">Minha carteira</button>
     <button role="tab" data-t="simular" aria-selected="false">Vale a pena?</button>
     <button role="tab" data-t="voos" aria-selected="false">Buscar voos</button>
@@ -83,6 +84,14 @@ footer{border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
     <div class="scroll"><table class="stack"><thead><tr><th>Programa</th><th class="num">Comprando hoje</th><th>Como</th><th class="num">Típico (esperando campanha)</th><th class="num">Mercado</th></tr></thead><tbody id="mil"></tbody></table></div>
     <h3 style="margin-top:28px">Encerradas ou para conferir</h3>
     <div class="scroll"><table class="stack"><thead><tr><th>Promoção</th><th>Prazo</th><th>Situação</th></tr></thead><tbody id="antigas"></tbody></table></div>
+  </section>
+
+  <section id="passagens" hidden>
+    <h2>Passagens baratas em milhas</h2>
+    <p class="small">Alertas de emissão encontrados nas comunidades de milhas nos últimos 45 dias. Filtre por aeroporto ou cidade.</p>
+    <form class="form" id="fpas"><label>Aeroporto ou cidade<input id="p_f" placeholder="Ex.: REC ou Recife"></label>
+      <label>Cabine<select id="p_c"><option value="">Todas</option><option>Econômica</option><option>Executiva</option></select></label></form>
+    <div class="grid" id="emis"></div>
   </section>
 
   <section id="carteira" hidden>
@@ -126,8 +135,11 @@ const RAW='https://raw.githubusercontent.com/hugolyra/milhas-facilitadas/main/da
 const PROG={
   smiles:{n:'Smiles',url:'https://www.smiles.com.br/',compra:80},
   azul:{n:'Azul Fidelidade',url:'https://www.voeazul.com.br/br/pt/programa-fidelidade',compra:70},
-  latam:{n:'LATAM Pass',url:'https://latampass.latam.com/pt_br/',compra:70}
+  latam:{n:'LATAM Pass',url:'https://latampass.latam.com/pt_br/',compra:70},
+  iberia:{n:'Iberia (Avios)',url:'https://www.iberia.com/br/iberiaclub/',compra:null,
+    par:{livelo:1/3.5,esfera:0.5},credito:{livelo:'até 7 dias úteis',esfera:'até 3 dias úteis'},minimo:{esfera:15000}}
 };
+const PAR=(prog,org)=>PROG[prog]?.par?.[org]??1;
 const SITES={livelo:'https://www.livelo.com.br/',esfera:'https://www.esfera.com.vc/'};
 const ORIG={livelo:'Livelo',esfera:'Esfera',inter:'Inter Loop',premmia:'Premmia',c6:'C6 Bank',itau:'Itaú',bb:'Banco do Brasil',kmv:'KM de Vantagens',bradesco:'Bradesco',caixa:'Caixa',porto:'Porto Bank',xp:'XP',btg:'BTG',todos:'todos os parceiros'};
 const NOME=k=>PROG[k]?.n||ORIG[k]||({accor:'ALL Accor',qatar:'Qatar Privilege Club',iberia:'Iberia',tap:'TAP Miles&Go'}[k])||k||'?';
@@ -155,7 +167,7 @@ function agrupar(lista){
     milheiro:gr.find(x=>x.milheiro)?.milheiro||null,fontes:gr,publicado:gr[gr.length-1].publicado}));
 }
 
-let PROMOS=[],MIL=null,HOJE=hojeISO();
+let PROMOS=[],MIL=null,EMIS=[],HOJE=hojeISO();
 
 async function carregar(nome){
   for(const base of [RAW,'data/']){
@@ -209,8 +221,28 @@ function renderHoje(){
   $('#kpis').innerHTML=k.join('');
 }
 
+// ---------- passagens em milhas ----------
+function renderPassagens(){
+  const f=($('#p_f').value||'').trim().toLowerCase(),c=$('#p_c').value;
+  const norm=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const lista=(EMIS||[]).filter(e=>(!f||norm(`${e.origem.iata} ${e.origem.cidade} ${e.destino.iata} ${e.destino.cidade}`).includes(norm(f)))&&(!c||norm(e.cabine||'').includes(norm(c))));
+  $('#emis').innerHTML=lista.length?lista.slice(0,60).map(e=>{
+    const mil=e.milhas?`<div class="pct">${(e.milhas/1000).toLocaleString('pt-BR')} mil</div><div>milhas ${esc(NOME(e.programa)||e.programa_texto)}${e.por_trecho?' o trecho':''} + taxas</div>`:`<div>${esc(e.custo_texto||'')}</div>`;
+    const v=e.milhas&&MIL?.programas?.[e.programa];
+    const custo=v?`<div class="small">Produzir essas milhas hoje: ~${brl0(e.milhas*v.aquisicao.valor/1000)}</div>`:'';
+    const site=PROG[e.programa]?.url;
+    return `<article class="card"><h3>${esc(e.origem.cidade)} (${e.origem.iata}) → ${esc(e.destino.cidade)} (${e.destino.iata})</h3>${mil}${custo}
+      <div><span class="tag">${esc(e.cabine||'Econômica')}</span>${e.trajeto?`<span class="tag">${esc(e.trajeto)}</span>`:''}${e.companhia?`<span class="tag">${esc(e.companhia)}</span>`:''}</div>
+      ${e.datas?`<div class="small" style="white-space:pre-line">${esc(e.datas.slice(0,260))}</div>`:''}
+      <div class="small">Publicado em ${dm(e.publicado.slice(0,10))}. Confira a disponibilidade antes de transferir.</div>
+      ${site?`<a class="small" href="${site}" target="_blank" rel="noopener">Abrir ${esc(NOME(e.programa))}</a>`:''}</article>`}).join('')
+    :`<div class="empty">${(EMIS||[]).length?'Nenhum alerta para esse filtro.':'Os alertas aparecem aqui assim que a leitura das comunidades estiver ligada.'}</div>`;
+}
+document.querySelectorAll('#fpas input,#fpas select').forEach(i=>i.addEventListener('input',renderPassagens));
+$('#fpas').addEventListener('submit',e=>e.preventDefault());
+
 // ---------- carteira ----------
-const CART_KEYS=['smiles','azul','latam','livelo','esfera'];
+const CART_KEYS=['smiles','azul','latam','iberia','livelo','esfera'];
 let cart={};
 try{cart=JSON.parse(localStorage.getItem('mf_carteira')||'{}')}catch(e){cart={}}
 function salvar(){try{localStorage.setItem('mf_carteira',JSON.stringify(cart))}catch(e){}}
@@ -250,13 +282,15 @@ function renderSim(){
   if(falta>0){
     const linhas=[];
     for(const org of ['livelo','esfera']){
-      const saldo=cart[org]?.saldo||0,b=melhorBonus(prog,org),fator=1+b.percentual/100;
-      const precisa=Math.ceil(falta/fator/1000)*1000,custo=custoOrigem(org);
+      const saldo=cart[org]?.saldo||0,b=melhorBonus(prog,org),fator=1+b.percentual/100,par=PAR(prog,org);
+      const minimo=PROG[prog]?.minimo?.[org]||0;
+      const precisa=Math.max(minimo,Math.ceil(falta/fator/par/1000)*1000),custo=custoOrigem(org);
       const usa=Math.min(saldo,precisa),faltaComprar=Math.max(0,precisa-saldo);
       // pontos comprados no banco não caem na hora: com bônus acabando hoje ou amanhã, pode não dar tempo
       const corre=faltaComprar>0&&b.prazo&&dias(HOJE,b.prazo)<=1;
       linhas.push({t:`Transferir de ${NOME(org)}${b.percentual?' com +'+b.percentual+'%':' sem bônus'}`+(corre?' ⚠️':''),
-        d:`${pts(precisa)} pontos ${NOME(org)}${saldo?` (você tem ${pts(saldo)}${faltaComprar?', compraria '+pts(faltaComprar):''})`:''}`+
+        d:`${pts(precisa)} pontos ${NOME(org)}${par!==1?` (paridade ${par===0.5?'2':'3,5'}:1)`:''}${saldo?` (você tem ${pts(saldo)}${faltaComprar?', compraria '+pts(faltaComprar):''})`:''}`+
+          (PROG[prog]?.credito?.[org]?`. Crédito em ${PROG[prog].credito[org]}.`:'')+
           (corre?`. Atenção: pontos comprados costumam levar 1 dia ou mais para cair, e o bônus termina ${b.prazo===HOJE?'hoje':'amanhã'}.`:''),
         r:faltaComprar*(custo||30)/1000,custoTotal:precisa*(custo||30)/1000,risco:corre});
     }
@@ -303,12 +337,13 @@ const em30=new Date(Date.now()+30*864e5);$('#v_ida').value=new Date(em30-em30.ge
   try{
     const [p,m]=await Promise.all([carregar('promocoes.json'),carregar('milheiro.json')]);
     PROMOS=Object.values(p||{});MIL=m;
+    try{EMIS=await carregar('emissoes.json')}catch(e){EMIS=[]}
     $('#rodape').textContent=`Referência do milheiro gerada em ${dm(MIL.gerado_em)}/${MIL.gerado_em.slice(0,4)}. Promoções lidas de blogs especializados e atualizadas a cada 2 horas. Confira sempre o regulamento antes de transferir.`;
   }catch(e){
     $('#manchete').textContent='Não consegui carregar os dados agora';
     $('#sub').textContent='Tente recarregar a página em alguns minutos.';
   }
-  renderHoje();renderCarteira();renderSim();renderVoos();
+  renderHoje();renderPassagens();renderCarteira();renderSim();renderVoos();
   const t=location.hash.slice(1);if(t&&document.querySelector(`[data-t="${t}"]`))aba(t);
 })();
 }

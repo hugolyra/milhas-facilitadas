@@ -55,3 +55,17 @@ python -m coletor.precos REC EZE 2027-01-14        # preço real em dinheiro
 5. Em **Actions**, rode o workflow `coletor` uma vez pelo botão **Run workflow**.
 
 O workflow roda a cada 2 h, testa, coleta, manda os alertas e grava `data/` no próprio repositório. O front-end pode ler esses JSONs direto do GitHub Pages.
+
+## Leitura das comunidades de milhas no Telegram (opcional)
+
+O módulo `coletor/grupos.py` lê os grupos listados em `config.GRUPOS` com a sua conta do Telegram e extrai:
+- **alertas de passagem em milhas** (rota, programa, custo, cabine, datas) → `data/emissoes.json`, aba "Passagens em milhas" do site e alerta no Telegram para rotas de `config.AEROPORTOS_INTERESSE`;
+- **preço do milheiro no balcão** (resumo diário ou mediana das ofertas) → `data/mercado_auto.json`, usado como valor de mercado;
+- **promoções** publicadas nos grupos, junto com as dos blogs.
+
+Para ligar:
+1. Em https://my.telegram.org → *API development tools*, crie um app e anote `api_id` e `api_hash`.
+2. No seu computador: `pip install telethon==1.46.0` e `python gerar_sessao.py`. Informe telefone e código; copie a sessão que aparece.
+3. Crie os segredos `TELEGRAM_API_ID`, `TELEGRAM_API_HASH` e `TELEGRAM_SESSION` no repositório.
+
+A sessão dá acesso à conta. O ideal é usar uma conta secundária que participe dos mesmos grupos. Para revogar, encerre a sessão "MilhasFacilitadas" em Telegram → Configurações → Dispositivos.
