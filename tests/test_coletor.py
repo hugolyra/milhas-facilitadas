@@ -62,7 +62,8 @@ def test_avaliar_emissao():
 def test_mensagem_telegram_escapa_html():
     p = promos()["smiles-c6"]
     txt = telegram.formatar(p, milheiro.referencias(list(promos().values()), HOJE))
-    assert "Smiles" in txt and "70%" in txt and "24/11" in txt and "<a href=" in txt
+    assert "Smiles" in txt and "+70%" in txt and "24/11" in txt and "smiles.com.br" in txt
+    assert "Teste" not in txt and "exemplo.com" not in txt  # não cita o blog
 
 
 def test_titulos_reais_de_24_11_2026():
@@ -91,8 +92,8 @@ def test_mensagem_unica_para_mesma_promocao_em_dois_blogs():
     p2 = {**p1, "prazo": "2026-11-24", "link": "https://b/2", "fonte": "Blog B"}
     assert telegram.chave(p1) == telegram.chave(p2)
     txt = telegram.formatar(p1, None, [p1, p2])
-    assert "LATAM Pass" in txt and "Livelo" in txt and "Até 24/11" in txt
-    assert "Blog A" in txt and "Blog B" in txt
+    assert "LATAM Pass" in txt and "Livelo" in txt and "Válida até 24/11" in txt
+    assert "Blog" not in txt and "https://a/1" not in txt
 
 
 def test_nome_bonito_e_cpm_do_blog():
