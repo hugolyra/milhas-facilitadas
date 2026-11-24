@@ -253,16 +253,22 @@ function renderSim(){
       const saldo=cart[org]?.saldo||0,b=melhorBonus(prog,org),fator=1+b.percentual/100;
       const precisa=Math.ceil(falta/fator/1000)*1000,custo=custoOrigem(org);
       const usa=Math.min(saldo,precisa),faltaComprar=Math.max(0,precisa-saldo);
-      linhas.push({t:`Transferir de ${NOME(org)}${b.percentual?' com +'+b.percentual+'%':' sem bônus'}`,
-        d:`${pts(precisa)} pontos ${NOME(org)}${saldo?` (você tem ${pts(saldo)}${faltaComprar?', compraria '+pts(faltaComprar):''})`:''}`,
-        r:faltaComprar*(custo||30)/1000,custoTotal:precisa*(custo||30)/1000});
+      // pontos comprados no banco não caem na hora: com bônus acabando hoje ou amanhã, pode não dar tempo
+      const corre=faltaComprar>0&&b.prazo&&dias(HOJE,b.prazo)<=1;
+      linhas.push({t:`Transferir de ${NOME(org)}${b.percentual?' com +'+b.percentual+'%':' sem bônus'}`+(corre?' ⚠️':''),
+        d:`${pts(precisa)} pontos ${NOME(org)}${saldo?` (você tem ${pts(saldo)}${faltaComprar?', compraria '+pts(faltaComprar):''})`:''}`+
+          (corre?`. Atenção: pontos comprados costumam levar 1 dia ou mais para cair, e o bônus termina ${b.prazo===HOJE?'hoje':'amanhã'}.`:''),
+        r:faltaComprar*(custo||30)/1000,custoTotal:precisa*(custo||30)/1000,risco:corre});
     }
-    const compra=PROG[prog]?.compra;
-    if(compra)linhas.push({t:`Comprar direto no ${NOME(prog)}`,d:`${pts(falta)} milhas ao preço cheio de referência (${brl0(compra)} o milheiro)`,r:falta*compra/1000,custoTotal:falta*compra/1000});
-    const min=Math.min(...linhas.map(l=>l.r));
+    // compra direta: usa a promoção vigente do próprio programa, se houver; senão o preço cheio
+    const promoCompra=agrupar(PROMOS).filter(p=>p.tipo==='compra'&&p.programa===prog&&p.milheiro&&['ativa','provavel'].includes(status(p,HOJE)))
+      .sort((a,b)=>a.milheiro-b.milheiro)[0];
+    const compra=promoCompra?promoCompra.milheiro:PROG[prog]?.compra;
+    if(compra)linhas.push({t:`Comprar direto no ${NOME(prog)}`,d:`${pts(falta)} milhas a ${brl(compra)} o milheiro${promoCompra?' (promoção vigente'+(promoCompra.percentual?', -'+promoCompra.percentual+'%':'')+')':' (preço cheio de referência)'}`,r:falta*compra/1000,custoTotal:falta*compra/1000});
+    const seguras=linhas.filter(l=>!l.risco);const min=Math.min(...(seguras.length?seguras:linhas).map(l=>l.r));
     opc=`<h3 style="margin-top:20px">Faltam ${pts(falta)} milhas ${esc(NOME(prog))}</h3>
       <div class="scroll"><table class="stack"><thead><tr><th>Caminho</th><th>O que fazer</th><th class="num">Você gasta agora</th><th class="num">Valor dos pontos usados</th></tr></thead><tbody>
-      ${linhas.map(l=>`<tr${l.r===min?' class="best"':''}><td>${esc(l.t)}${l.r===min?' <span class="tag ok">mais barato</span>':''}</td><td>${esc(l.d)}</td><td class="num">${brl0(l.r)}</td><td class="num">${brl0(l.custoTotal)}</td></tr>`).join('')}
+      ${linhas.map(l=>{const melhor=l.r===min&&!l.risco;return `<tr${melhor?' class="best"':''}><td>${esc(l.t)}${melhor?' <span class="tag ok">mais barato</span>':''}</td><td>${esc(l.d)}</td><td class="num">${brl0(l.r)}</td><td class="num">${brl0(l.custoTotal)}</td></tr>`}).join('')}
       </tbody></table></div><p class="note">"Você gasta agora" considera os pontos que você já tem na carteira como gratuitos. Pontos de banco valorados a ${brl(custoOrigem('livelo')||30)} o milheiro. Sem bônus hoje? A Azul e a Smiles costumam repetir campanhas de transferência todo mês.</p>`;
   }else if(tem){opc=`<p><span class="tag ok">Saldo suficiente</span> você tem ${pts(tem)} milhas ${esc(NOME(prog))}.</p>`}
   else{opc='<p class="note">Preencha a aba Minha carteira para ver como completar o saldo.</p>'}
