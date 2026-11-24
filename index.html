@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Milhas Facilitadas</title>
+<meta name="description" content="Promoções de transferência de pontos, valor do milheiro e plano para emitir passagens com milhas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Condensed:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: direto, de quem entende de milhas e não enrola
+   IDEA: painel de embarque — o que está valendo hoje, em letras grandes
+   PICTURE: os cartões de promoção vigente e o valor do milheiro
+   COLOUR and TYPE: branco, preto, vermelhão #ff4a1c; Sofia Sans Condensed + Instrument Sans
+   LAYOUT: faixa vermelha com o resumo, abas Hoje / Carteira / Simular / Buscar voos */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#120d0b);--ink:light-dark(#111,#f3ece8);--mut:light-dark(#5d5753,#b3a7a0);--line:light-dark(#e6e1de,#33291f);--soft:light-dark(#faf6f3,#1c1512);--acc:#ff4a1c;--acc2:light-dark(#c9330d,#ff7a52);--ok:light-dark(#0e7a3b,#5fd08f);--warn:light-dark(#9a5b00,#ffb547)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Instrument Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Sofia Sans Condensed",sans-serif;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(32px,5vw,48px);font-weight:800}h2{font-size:30px;font-weight:800;margin-bottom:6px}h3{font-size:22px;font-weight:600}
+.band{padding:clamp(24px,4vw,48px) max(5vw,16px)}.wrap{max-width:1240px;margin:0 auto}
+.top{background:var(--acc);color:#fff}.top p{margin:8px 0 0;max-width:64ch}
+.brand{font-family:"Sofia Sans Condensed",system-ui,sans-serif;font-weight:800;font-size:18px;opacity:.9;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+@media(max-width:600px){.kpis{grid-template-columns:1fr 1fr}.kpi b{font-size:26px}}
+.kpi{background:#fff;color:#111;border-radius:12px;padding:14px 16px}
+.kpi b{display:block;font-family:"Sofia Sans Condensed",system-ui,sans-serif;font-size:34px;font-weight:800;line-height:1.05;white-space:nowrap}
+.kpi span{font-size:13px;color:#5d5753}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--ink);margin-bottom:18px;position:sticky;top:0;background:var(--bg);z-index:2;padding-top:8px}
+.tabs button{font:600 16px "Instrument Sans",system-ui,sans-serif;min-height:44px;padding:8px 16px;border:0;border-radius:9px 9px 0 0;background:none;color:var(--ink);cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{border:1.5px solid var(--line);border-radius:14px;padding:16px;background:var(--bg);display:flex;flex-direction:column;gap:6px}
+.card .pct{font-family:"Sofia Sans Condensed",system-ui,sans-serif;font-weight:800;font-size:44px;line-height:1;color:var(--acc2)}
+.tag{display:inline-block;font-size:13px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--soft);border:1px solid var(--line);margin-right:4px}
+.tag.ok{background:var(--ok);color:#fff;border-color:transparent}.tag.warn{color:var(--warn);border-color:var(--warn)}
+.small{font-size:13px;color:var(--mut)}.big{font-family:"Sofia Sans Condensed",system-ui,sans-serif;font-weight:800;font-size:28px;white-space:nowrap}
+a{color:var(--acc2)}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:13px}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0 18px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+input,select{font:16px "Instrument Sans",system-ui,sans-serif;padding:10px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);min-height:44px;width:100%}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.btn{font:600 16px "Instrument Sans",system-ui,sans-serif;min-height:44px;padding:10px 18px;border-radius:9px;border:0;cursor:pointer;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn.alt{background:none;color:var(--ink);border:1.5px solid var(--ink)}
+.result{border-left:4px solid var(--acc);background:var(--soft);padding:14px 16px;border-radius:8px;margin-top:8px}
+.result ol{margin:8px 0 0;padding-left:20px}.result li{margin:6px 0}
+.best{outline:2px solid var(--ok)}
+.empty{padding:20px;border:1.5px dashed var(--line);border-radius:12px;color:var(--mut)}
+.note{font-size:13px;color:var(--mut);margin-top:10px}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+footer{border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;font-weight:600}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:no-preference){.card{animation:in .3s ease both}@keyframes in{from{opacity:0;transform:translateY(5px)}}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<header class="band top"><div class="wrap">
+  <div class="brand">Milhas Facilitadas</div>
+  <h1 id="manchete">Carregando as promoções de hoje…</h1>
+  <p id="sub">Promoções de transferência e compra de pontos, valor do milheiro e o caminho até a emissão.</p>
+  <div class="kpis" id="kpis"></div>
+</div></header>
+
+<main class="band"><div class="wrap">
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-t="hoje" aria-selected="true">Hoje</button>
+    <button role="tab" data-t="carteira" aria-selected="false">Minha carteira</button>
+    <button role="tab" data-t="simular" aria-selected="false">Vale a pena?</button>
+    <button role="tab" data-t="voos" aria-selected="false">Buscar voos</button>
+  </nav>
+
+  <section id="hoje">
+    <h2>Promoções valendo agora</h2>
+    <p class="small" id="hoje-sub"></p>
+    <div class="grid" id="promos"></div>
+    <h2 style="margin-top:34px">Quanto custa o milheiro hoje</h2>
+    <p class="small">Quanto você paga por 1.000 milhas em cada programa, comparado ao que os balcões de compra de milhas pagam.</p>
+    <div class="scroll"><table class="stack"><thead><tr><th>Programa</th><th class="num">Comprando hoje</th><th>Como</th><th class="num">Típico (esperando campanha)</th><th class="num">Mercado</th></tr></thead><tbody id="mil"></tbody></table></div>
+    <h3 style="margin-top:28px">Encerradas ou para conferir</h3>
+    <div class="scroll"><table class="stack"><thead><tr><th>Promoção</th><th>Prazo</th><th>Situação</th></tr></thead><tbody id="antigas"></tbody></table></div>
+  </section>
+
+  <section id="carteira" hidden>
+    <h2>Minha carteira</h2>
+    <p class="small">Fica só neste navegador. Informe saldo e, se souber, quando os pontos vencem.</p>
+    <div class="scroll"><table><thead><tr><th>Programa</th><th class="num">Saldo</th><th>Vence em</th><th></th></tr></thead><tbody id="cart"></tbody></table></div>
+    <div id="alertas"></div>
+  </section>
+
+  <section id="simular" hidden>
+    <h2>Vale a pena emitir com milhas?</h2>
+    <p class="small">Coloque o que o site do programa mostrou e o preço da mesma passagem em dinheiro.</p>
+    <form class="form" id="fsim">
+      <label>Programa<select id="s_prog"></select></label>
+      <label>Milhas pedidas<input id="s_mil" type="number" min="0" step="500" value="26500"></label>
+      <label>Taxas (R$)<input id="s_tax" type="number" min="0" step="1" value="160"></label>
+      <label>Preço em dinheiro (R$)<input id="s_cash" type="number" min="0" step="1" value="1520"></label>
+      <label>Passageiros<input id="s_pax" type="number" min="1" max="9" value="1"></label>
+    </form>
+    <div id="simres"></div>
+  </section>
+
+  <section id="voos" hidden>
+    <h2>Buscar voos</h2>
+    <p class="small">Abre a busca já preenchida em cada site. A comparação automática em milhas chega com a integração do Seats.aero.</p>
+    <form class="form" id="fvoo">
+      <label>Origem (aeroporto)<input id="v_o" value="REC" maxlength="3" autocapitalize="characters"></label>
+      <label>Destino (aeroporto)<input id="v_d" value="EZE" maxlength="3" autocapitalize="characters"></label>
+      <label>Ida<input id="v_ida" type="date"></label>
+      <label>Volta (opcional)<input id="v_volta" type="date"></label>
+    </form>
+    <div class="links" id="vlinks"></div>
+  </section>
+</div></main>
+
+<footer class="band"><div class="wrap" id="rodape">Dados atualizados automaticamente a cada 2 horas.</div></footer>
+
+<script>
+{
+const RAW='https://raw.githubusercontent.com/hugolyra/milhas-facilitadas/main/data/';
+const PROG={
+  smiles:{n:'Smiles',url:'https://www.smiles.com.br/',compra:80},
+  azul:{n:'Azul Fidelidade',url:'https://www.voeazul.com.br/br/pt/programa-fidelidade',compra:70},
+  latam:{n:'LATAM Pass',url:'https://latampass.latam.com/pt_br/',compra:70}
+};
+const SITES={livelo:'https://www.livelo.com.br/',esfera:'https://www.esfera.com.vc/'};
+const ORIG={livelo:'Livelo',esfera:'Esfera',inter:'Inter Loop',premmia:'Premmia',c6:'C6 Bank',itau:'Itaú',bb:'Banco do Brasil',kmv:'KM de Vantagens',bradesco:'Bradesco',caixa:'Caixa',porto:'Porto Bank',xp:'XP',btg:'BTG',todos:'todos os parceiros'};
+const NOME=k=>PROG[k]?.n||ORIG[k]||({accor:'ALL Accor',qatar:'Qatar Privilege Club',iberia:'Iberia',tap:'TAP Miles&Go'}[k])||k||'?';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const brl0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
+const pts=v=>Math.round(v).toLocaleString('pt-BR');
+const $=s=>document.querySelector(s);
+const hojeISO=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const dm=iso=>iso?iso.slice(8,10)+'/'+iso.slice(5,7):'';
+const dias=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+
+// mesmo critério do coletor: sem prazo e publicada há até 3 dias = provável
+function status(p,hoje){
+  if(!p.prazo){return dias(p.publicado.slice(0,10),hoje)<=3?'provavel':'verificar'}
+  return p.prazo>=hoje?'ativa':'encerrada';
+}
+const chave=p=>[p.tipo,p.programa,p.origem,p.percentual].join('|');
+function agrupar(lista){
+  const g=new Map();
+  for(const p of [...lista].sort((a,b)=>a.publicado<b.publicado?-1:1)){
+    const k=chave(p);if(!g.has(k))g.set(k,[]);g.get(k).push(p);
+  }
+  return [...g.values()].map(gr=>({...gr[0],prazo:gr.find(x=>x.prazo)?.prazo||null,cpm:gr.find(x=>x.cpm)?.cpm||null,
+    milheiro:gr.find(x=>x.milheiro)?.milheiro||null,fontes:gr,publicado:gr[gr.length-1].publicado}));
+}
+
+let PROMOS=[],MIL=null,HOJE=hojeISO();
+
+async function carregar(nome){
+  for(const base of [RAW,'data/']){
+    try{const r=await fetch(base+nome+'?t='+Date.now(),{cache:'no-store'});if(r.ok)return await r.json()}catch(e){}
+  }
+  throw new Error('sem dados: '+nome);
+}
+
+function custoOrigem(org){return MIL?.custo_origem?.[org]?.valor}
+
+function cardPromo(p){
+  const st=status(p,HOJE);
+  const prazo=p.prazo?(p.prazo===HOJE?'<span class="tag warn">Último dia</span>':`<span class="tag">Até ${dm(p.prazo)}</span>`):'<span class="tag warn">Prazo a confirmar</span>';
+  let titulo,detalhe='';
+  if(p.tipo==='transferencia'){
+    titulo=`<div class="pct">+${p.percentual}%</div><h3>${esc(NOME(p.programa))}</h3><div>bônus transferindo de <b>${esc(NOME(p.origem))}</b></div>`;
+    const base=custoOrigem(p.origem);
+    const m=p.cpm||(base?base/(1+p.percentual/100):null);
+    if(m)detalhe=`<div>Milheiro sai por <b>${brl(m)}</b>${p.cpm?'':' <span class="small">(pontos a '+brl(base)+')</span>'}</div>`;
+  }else{
+    titulo=`<div class="pct">${p.percentual?'-'+p.percentual+'%':'Oferta'}</div><h3>Compra de pontos ${esc(NOME(p.programa))}</h3>`;
+    if(p.milheiro)detalhe=`<div>Milheiro a partir de <b>${brl(p.milheiro)}</b></div>`;
+  }
+  const site=PROG[p.programa]?.url||SITES[p.programa];
+  const unicas=[...new Map(p.fontes.map(f=>[f.fonte,f])).values()];
+  const fontes=unicas.map(f=>`<a href="${esc(f.link)}" target="_blank" rel="noopener">${esc(f.fonte)}</a>`).join(' · ');
+  return `<article class="card">${titulo}${detalhe}<div>${prazo}${st==='provavel'?'<span class="tag">Publicada '+dm(p.publicado.slice(0,10))+'</span>':''}</div>
+    <div class="small">Regras e cadastro: ${fontes}</div>${site?`<a class="small" href="${site}" target="_blank" rel="noopener">Abrir ${esc(NOME(p.programa))}</a>`:''}</article>`;
+}
+
+function renderHoje(){
+  const todos=agrupar(PROMOS);
+  const vig=todos.filter(p=>['ativa','provavel'].includes(status(p,HOJE))&&p.programa);
+  const resto=todos.filter(p=>!vig.includes(p));
+  vig.sort((a,b)=>(b.percentual||0)-(a.percentual||0));
+  $('#promos').innerHTML=vig.length?vig.map(cardPromo).join(''):'<div class="empty">Nenhuma promoção vigente agora. O coletor confere de novo a cada 2 horas.</div>';
+  $('#hoje-sub').textContent=`${vig.length} promoç${vig.length===1?'ão':'ões'} vigente${vig.length===1?'':'s'}, já sem repetição entre blogs. Antes de transferir, cadastre o CPF na página da promoção.`;
+  $('#antigas').innerHTML=resto.length?resto.map(p=>`<tr><td>${esc(p.titulo)}</td><td>${p.prazo?dm(p.prazo):'—'}</td><td>${status(p,HOJE)==='encerrada'?'Encerrada':'Conferir no site'}</td></tr>`).join(''):'<tr><td colspan="3" class="small">Nada por aqui.</td></tr>';
+
+  const rows=Object.entries(MIL?.programas||{}).map(([k,v])=>{
+    const a=v.aquisicao,t=v.aquisicao_tipica,m=v.mercado;
+    const como=a.bonus?`${esc(NOME(a.via))} com ${a.bonus}% de bônus`:`${esc(NOME(a.via))} sem bônus`;
+    return `<tr><td>${esc(NOME(k))}</td><td class="num"><b>${brl(a.valor)}</b></td><td>${como}</td><td class="num">${brl(t.valor)}</td><td class="num">${m?brl(m.valor):'—'}</td></tr>`;
+  });
+  $('#mil').innerHTML=rows.join('')||'<tr><td colspan="5">Sem dados.</td></tr>';
+
+  const best=vig.filter(p=>p.tipo==='transferencia').sort((a,b)=>b.percentual-a.percentual)[0];
+  $('#manchete').textContent=best?`Hoje: até ${best.percentual}% de bônus para ${NOME(best.programa)} vindo de ${NOME(best.origem)}`:'Hoje não há transferência bonificada vigente';
+  const k=Object.entries(MIL?.programas||{}).map(([p,v])=>`<div class="kpi"><b>${brl(v.aquisicao.valor)}</b><span>milheiro ${esc(NOME(p))} hoje</span></div>`);
+  k.unshift(`<div class="kpi"><b>${vig.length}</b><span>promoções vigentes</span></div>`);
+  $('#kpis').innerHTML=k.join('');
+}
+
+// ---------- carteira ----------
+const CART_KEYS=['smiles','azul','latam','livelo','esfera'];
+let cart={};
+try{cart=JSON.parse(localStorage.getItem('mf_carteira')||'{}')}catch(e){cart={}}
+function salvar(){try{localStorage.setItem('mf_carteira',JSON.stringify(cart))}catch(e){}}
+function renderCarteira(){
+  $('#cart').innerHTML=CART_KEYS.map(k=>{const c=cart[k]||{};return `<tr><td>${esc(NOME(k))}</td>
+    <td class="num"><input aria-label="Saldo ${esc(NOME(k))}" data-k="${k}" data-f="saldo" type="number" min="0" step="1000" value="${c.saldo??''}" placeholder="0" style="max-width:160px;text-align:right"></td>
+    <td><input aria-label="Vencimento ${esc(NOME(k))}" data-k="${k}" data-f="vence" type="date" value="${c.vence||''}" style="max-width:190px"></td>
+    <td class="small">${c.vence&&dias(HOJE,c.vence)<=60?(dias(HOJE,c.vence)<0?'Vencido':'Vence em '+dias(HOJE,c.vence)+' dias'):''}</td></tr>`}).join('');
+  const av=CART_KEYS.filter(k=>cart[k]?.vence&&cart[k]?.saldo>0&&dias(HOJE,cart[k].vence)<=60&&dias(HOJE,cart[k].vence)>=0)
+    .map(k=>`<li><b>${pts(cart[k].saldo)}</b> ${esc(NOME(k))} vencem em ${dm(cart[k].vence)}. Use ou transfira antes.</li>`);
+  $('#alertas').innerHTML=av.length?`<div class="result"><b>Atenção</b><ol>${av.join('')}</ol></div>`:'';
+}
+document.addEventListener('change',e=>{const i=e.target.closest('[data-k]');if(!i)return;
+  const c=cart[i.dataset.k]||(cart[i.dataset.k]={});c[i.dataset.f]=i.dataset.f==='saldo'?Math.max(0,+i.value||0):i.value;salvar();renderCarteira();renderSim()});
+
+// ---------- vale a pena + como completar ----------
+function melhorBonus(prog,org){
+  const vig=agrupar(PROMOS).filter(p=>p.tipo==='transferencia'&&p.programa===prog&&['ativa','provavel'].includes(status(p,HOJE))&&(p.origem===org||p.origem==='todos'));
+  return vig.reduce((m,p)=>p.percentual>m.percentual?p:m,{percentual:0});
+}
+function renderSim(){
+  const prog=$('#s_prog').value,pax=Math.max(1,+$('#s_pax').value||1);
+  const mil=(+$('#s_mil').value||0)*pax,tax=(+$('#s_tax').value||0)*pax,cash=(+$('#s_cash').value||0)*pax;
+  if(!mil||!cash){$('#simres').innerHTML='<div class="empty">Preencha milhas e preço em dinheiro.</div>';return}
+  const v=MIL?.programas?.[prog];
+  const rende=(cash-tax)/(mil/1000);
+  const ref=v?.aquisicao_tipica?.valor;
+  const veredito=ref?(rende>ref*1.15?`<span class="tag ok">Vale a pena</span> cada milheiro rende ${brl(rende)}, acima do custo típico de ${brl(ref)}.`
+     :rende>=ref?`<span class="tag warn">No limite</span> cada milheiro rende ${brl(rende)}, perto do custo típico de ${brl(ref)}.`
+     :`<span class="tag warn">Melhor pagar em dinheiro</span> cada milheiro renderia só ${brl(rende)}; produzir milhas custa ${brl(ref)}.`):'';
+  // como completar o saldo
+  const tem=cart[prog]?.saldo||0,falta=Math.max(0,mil-tem);
+  let opc='';
+  if(falta>0){
+    const linhas=[];
+    for(const org of ['livelo','esfera']){
+      const saldo=cart[org]?.saldo||0,b=melhorBonus(prog,org),fator=1+b.percentual/100;
+      const precisa=Math.ceil(falta/fator/1000)*1000,custo=custoOrigem(org);
+      const usa=Math.min(saldo,precisa),faltaComprar=Math.max(0,precisa-saldo);
+      linhas.push({t:`Transferir de ${NOME(org)}${b.percentual?' com +'+b.percentual+'%':' sem bônus'}`,
+        d:`${pts(precisa)} pontos ${NOME(org)}${saldo?` (você tem ${pts(saldo)}${faltaComprar?', compraria '+pts(faltaComprar):''})`:''}`,
+        r:faltaComprar*(custo||30)/1000,custoTotal:precisa*(custo||30)/1000});
+    }
+    const compra=PROG[prog]?.compra;
+    if(compra)linhas.push({t:`Comprar direto no ${NOME(prog)}`,d:`${pts(falta)} milhas ao preço cheio de referência (${brl0(compra)} o milheiro)`,r:falta*compra/1000,custoTotal:falta*compra/1000});
+    const min=Math.min(...linhas.map(l=>l.r));
+    opc=`<h3 style="margin-top:20px">Faltam ${pts(falta)} milhas ${esc(NOME(prog))}</h3>
+      <div class="scroll"><table class="stack"><thead><tr><th>Caminho</th><th>O que fazer</th><th class="num">Você gasta agora</th><th class="num">Valor dos pontos usados</th></tr></thead><tbody>
+      ${linhas.map(l=>`<tr${l.r===min?' class="best"':''}><td>${esc(l.t)}${l.r===min?' <span class="tag ok">mais barato</span>':''}</td><td>${esc(l.d)}</td><td class="num">${brl0(l.r)}</td><td class="num">${brl0(l.custoTotal)}</td></tr>`).join('')}
+      </tbody></table></div><p class="note">"Você gasta agora" considera os pontos que você já tem na carteira como gratuitos. Pontos de banco valorados a ${brl(custoOrigem('livelo')||30)} o milheiro. Sem bônus hoje? A Azul e a Smiles costumam repetir campanhas de transferência todo mês.</p>`;
+  }else if(tem){opc=`<p><span class="tag ok">Saldo suficiente</span> você tem ${pts(tem)} milhas ${esc(NOME(prog))}.</p>`}
+  else{opc='<p class="note">Preencha a aba Minha carteira para ver como completar o saldo.</p>'}
+  $('#simres').innerHTML=`<div class="result"><div class="big">${brl(rende)} por milheiro</div><p>${veredito}</p>
+    <p class="small">Emissão: ${pts(mil)} milhas + ${brl0(tax)} em taxas, contra ${brl0(cash)} em dinheiro.</p></div>${opc}`;
+}
+
+// ---------- buscar voos ----------
+function renderVoos(){
+  const o=($('#v_o').value||'').toUpperCase().trim(),d=($('#v_d').value||'').toUpperCase().trim(),ida=$('#v_ida').value,volta=$('#v_volta').value;
+  if(!/^[A-Z]{3}$/.test(o)||!/^[A-Z]{3}$/.test(d)||!ida){$('#vlinks').innerHTML='<div class="empty">Informe os códigos dos aeroportos (3 letras) e a data de ida.</div>';return}
+  const q=encodeURIComponent(`Voos de ${o} para ${d} em ${ida}${volta?' volta '+volta:' só ida'}`);
+  const L=[['Google Voos (dinheiro)',`https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=${q}`],
+    ['Smiles (milhas)','https://www.smiles.com.br/passagens'],['Azul (pontos)','https://www.voeazul.com.br/'],['LATAM (pontos)','https://www.latamairlines.com/br/pt']];
+  $('#vlinks').innerHTML=L.map(([n,u],i)=>`<a class="btn${i?' alt':''}" href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join('')+
+    '<p class="note" style="width:100%">O Google Voos abre com origem, destino e datas preenchidos. Nos sites dos programas, preencha a mesma busca e marque a opção de usar milhas ou pontos. Depois traga os números para a aba "Vale a pena?".</p>';
+}
+
+// ---------- abas ----------
+function aba(t){document.querySelectorAll('[data-t]').forEach(b=>{const on=b.dataset.t===t;b.setAttribute('aria-selected',on);document.getElementById(b.dataset.t).hidden=!on});
+  if(location.hash!=='#'+t)history.replaceState(null,'','#'+t)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)aba(b.dataset.t)});
+window.addEventListener('hashchange',()=>{const t=location.hash.slice(1);if(document.getElementById(t)&&document.querySelector(`[data-t="${t}"]`))aba(t)});
+
+$('#s_prog').innerHTML=Object.entries(PROG).map(([k,v])=>`<option value="${k}">${esc(v.n)}</option>`).join('');
+['#fsim input','#fsim select'].forEach(s=>document.querySelectorAll(s).forEach(i=>i.addEventListener('input',renderSim)));
+document.querySelectorAll('#fvoo input').forEach(i=>i.addEventListener('input',renderVoos));
+['submit'].forEach(ev=>{$('#fsim').addEventListener(ev,e=>e.preventDefault());$('#fvoo').addEventListener(ev,e=>e.preventDefault())});
+const em30=new Date(Date.now()+30*864e5);$('#v_ida').value=new Date(em30-em30.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+
+(async()=>{
+  try{
+    const [p,m]=await Promise.all([carregar('promocoes.json'),carregar('milheiro.json')]);
+    PROMOS=Object.values(p||{});MIL=m;
+    $('#rodape').textContent=`Referência do milheiro gerada em ${dm(MIL.gerado_em)}/${MIL.gerado_em.slice(0,4)}. Promoções lidas de blogs especializados e atualizadas a cada 2 horas. Confira sempre o regulamento antes de transferir.`;
+  }catch(e){
+    $('#manchete').textContent='Não consegui carregar os dados agora';
+    $('#sub').textContent='Tente recarregar a página em alguns minutos.';
+  }
+  renderHoje();renderCarteira();renderSim();renderVoos();
+  const t=location.hash.slice(1);if(t&&document.querySelector(`[data-t="${t}"]`))aba(t);
+})();
+}
+</script>
+</body>
+</html>
