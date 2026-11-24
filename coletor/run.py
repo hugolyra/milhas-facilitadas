@@ -81,7 +81,7 @@ def main(argv=None):
         _gravar("sitemap_estado.json", estado)
 
     if "--sem-alerta" not in argv:
-        enviados = set(_ler("alertas_enviados.json", []))
+        enviados = set(_ler("alertas_v2.json", []))
         vigentes = [p for p in promos.values() if p["status"] in bonus.VIGENTES and p["programa"]]
         if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
             n = len({telegram.chave(p) for p in vigentes})
@@ -97,7 +97,7 @@ def main(argv=None):
                 enviados.update(p["id"] for p in grupo)  # só marca se o Telegram confirmou
         for linha in sm[:5]:
             telegram.enviar(f"📄 Página oficial nova/alterada\n{linha}")
-        _gravar("alertas_enviados.json", sorted(enviados))
+        _gravar("alertas_v2.json", sorted(enviados))
 
 
 if __name__ == "__main__":
