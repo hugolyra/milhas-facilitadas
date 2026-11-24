@@ -13,7 +13,7 @@ MESES = {m: i for i, m in enumerate(
 RE_BONUS = re.compile(r"(\d{1,3})\s?%\s*(?:de\s+)?b[oô]nus", re.I)
 RE_DESCONTO = re.compile(r"(\d{1,3})\s?%\s*(?:de\s+)?(?:desconto|off)", re.I)
 RE_MILHEIRO = re.compile(
-    r"milheiro\s+(?:a\s+partir\s+de|por|de)?\s*R\$\s?(\d{1,3}(?:,\d{1,2})?)"
+    r"milheiro\s+(?:a\s+partir\s+de|por|de|a)?\s*R\$\s?(\d{1,3}(?:,\d{1,2})?)"
     r"|R\$\s?(\d{1,3}(?:,\d{1,2})?)\s+(?:o|por)\s+milheiro", re.I)
 RE_ATE_DATA = re.compile(
     r"at[eé]\s+(?:[a-zçáéíóú-]+,?\s+)?(?:o\s+)?(?:dia\s+)?(\d{1,2})(?![\d%])(?!\s?%)"
@@ -60,6 +60,9 @@ def extrair(titulo: str, link: str, publicado: datetime, fonte: str) -> dict | N
         tipo, percentual = "compra", int(m.group(1))
     elif re.search(r"compr\w+\s+(pontos|milhas)", t, re.I) and RE_MILHEIRO.search(t):
         tipo = "compra"
+    elif re.search(r"\bvend\w*\s+(?:o\s+)?(pontos|milhas|milheiro)", t, re.I) and (RE_DESCONTO.search(t) or RE_MILHEIRO.search(t)):
+        tipo = "compra"  # ex.: "LATAM vende milhas com 66% de desconto"
+        percentual = int(m.group(1)) if (m := RE_DESCONTO.search(t)) else None
     if not tipo:
         return None
 
