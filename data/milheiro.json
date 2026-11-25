@@ -15,14 +15,14 @@
  "programas": {
   "smiles": {
    "aquisicao": {
-    "valor": 30.0,
+    "valor": 16.67,
     "via": "livelo",
-    "bonus": 0
+    "bonus": 80
    },
    "aquisicao_tipica": {
-    "valor": 30.0,
+    "valor": 16.67,
     "via": "livelo",
-    "bonus_mediano": 0
+    "bonus_mediano": 80
    },
    "mercado": {
     "valor": 15.5,
@@ -54,9 +54,9 @@
     "bonus": 27
    },
    "aquisicao_tipica": {
-    "valor": 23.62,
+    "valor": 23.81,
     "via": "livelo",
-    "bonus_mediano": 27
+    "bonus_mediano": 26.0
    },
    "mercado": {
     "valor": 24.0,
