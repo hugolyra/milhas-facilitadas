@@ -22,7 +22,7 @@
    "aquisicao_tipica": {
     "valor": 16.67,
     "via": "livelo",
-    "bonus_mediano": 80
+    "bonus_mediano": 80.0
    },
    "mercado": {
     "valor": 15.5,

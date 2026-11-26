@@ -178,5 +178,20 @@
   "link": "https://pontospravoar.com/apenas-hoje-smiles-oferece-ate-80-porcento-bonus-transferencia-pontos-livelo/",
   "fonte": "Pontos pra Voar",
   "status": "provavel"
+ },
+ "https://pontospravoar.com/prorrogou-smiles-oferece-ate-80-porcento-bonus-transferencia-pontos-livelo/": {
+  "id": "https://pontospravoar.com/prorrogou-smiles-oferece-ate-80-porcento-bonus-transferencia-pontos-livelo/",
+  "tipo": "transferencia",
+  "programa": "smiles",
+  "origem": "livelo",
+  "percentual": 80,
+  "milheiro": null,
+  "cpm": null,
+  "prazo": null,
+  "publicado": "2026-11-26T11:00:41+00:00",
+  "titulo": "Prorrogou! Smiles oferece até 80% de bônus na transferência de pontos Livelo",
+  "link": "https://pontospravoar.com/prorrogou-smiles-oferece-ate-80-porcento-bonus-transferencia-pontos-livelo/",
+  "fonte": "Pontos pra Voar",
+  "status": "provavel"
  }
 }
