@@ -193,5 +193,20 @@
   "link": "https://pontospravoar.com/prorrogou-smiles-oferece-ate-80-porcento-bonus-transferencia-pontos-livelo/",
   "fonte": "Pontos pra Voar",
   "status": "provavel"
+ },
+ "https://pontospravoar.com/latam-pass-e-premmia-oferecem-ate-60-de-bonus-na-transferencia-de-pontos/": {
+  "id": "https://pontospravoar.com/latam-pass-e-premmia-oferecem-ate-60-de-bonus-na-transferencia-de-pontos/",
+  "tipo": "transferencia",
+  "programa": "latam",
+  "origem": "premmia",
+  "percentual": 60,
+  "milheiro": null,
+  "cpm": null,
+  "prazo": null,
+  "publicado": "2026-11-26T20:00:46+00:00",
+  "titulo": "LATAM Pass e Premmia oferecem até 60% de bônus na transferência de pontos",
+  "link": "https://pontospravoar.com/latam-pass-e-premmia-oferecem-ate-60-de-bonus-na-transferencia-de-pontos/",
+  "fonte": "Pontos pra Voar",
+  "status": "provavel"
  }
 }
