@@ -22,7 +22,7 @@
    "aquisicao_tipica": {
     "valor": 16.18,
     "via": "livelo",
-    "bonus_mediano": 80.0
+    "bonus_mediano": 80
    },
    "mercado": {
     "valor": 15.5,
@@ -32,14 +32,14 @@
   },
   "azul": {
    "aquisicao": {
-    "valor": 29.13,
-    "via": "livelo",
-    "bonus": 0
+    "valor": 13.64,
+    "via": "esfera",
+    "bonus": 120
    },
    "aquisicao_tipica": {
-    "valor": 29.13,
-    "via": "livelo",
-    "bonus_mediano": 0
+    "valor": 13.64,
+    "via": "esfera",
+    "bonus_mediano": 120.0
    },
    "mercado": {
     "valor": 13.0,
