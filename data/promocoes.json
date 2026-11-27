@@ -57,7 +57,7 @@
   "titulo": "LATAM FRIDAY! Ganhe 27% de bônus nas transferências de pontos Livelo",
   "link": "https://passageirodeprimeira.com/latam-pass-oferece-27-de-bonus-na-transferencia-de-pontos-livelo/",
   "fonte": "Passageiro de Primeira",
-  "status": "provavel"
+  "status": "verificar"
  },
  "https://passageirodeprimeira.com/azul-oferece-ate-120-de-bonus-nas-transferencias-da-premmia-cpm-a-partir-de-r-1532/": {
   "id": "https://passageirodeprimeira.com/azul-oferece-ate-120-de-bonus-nas-transferencias-da-premmia-cpm-a-partir-de-r-1532/",
@@ -72,7 +72,7 @@
   "titulo": "Azul oferece até 120% de bônus nas transferências da Premmia – CPM a partir de R$ 15,32",
   "link": "https://passageirodeprimeira.com/azul-oferece-ate-120-de-bonus-nas-transferencias-da-premmia-cpm-a-partir-de-r-1532/",
   "fonte": "Passageiro de Primeira",
-  "status": "provavel"
+  "status": "verificar"
  },
  "https://pontospravoar.com/azul-friday-ganhe-ate-120-porcento-bonus-transferencia-pontos-inter-loop-azul-fidelidade/": {
   "id": "https://pontospravoar.com/azul-friday-ganhe-ate-120-porcento-bonus-transferencia-pontos-inter-loop-azul-fidelidade/",
@@ -207,6 +207,21 @@
   "titulo": "LATAM Pass e Premmia oferecem até 60% de bônus na transferência de pontos",
   "link": "https://pontospravoar.com/latam-pass-e-premmia-oferecem-ate-60-de-bonus-na-transferencia-de-pontos/",
   "fonte": "Pontos pra Voar",
+  "status": "provavel"
+ },
+ "https://passageirodeprimeira.com/livelo-oferece-ate-571-de-desconto-na-compra-de-pontos-para-assinantes-do-clube-milheiro-a-partir-de-r-2913/": {
+  "id": "https://passageirodeprimeira.com/livelo-oferece-ate-571-de-desconto-na-compra-de-pontos-para-assinantes-do-clube-milheiro-a-partir-de-r-2913/",
+  "tipo": "compra",
+  "programa": "livelo",
+  "origem": null,
+  "percentual": 1,
+  "milheiro": 29.13,
+  "cpm": null,
+  "prazo": null,
+  "publicado": "2026-11-27T03:40:55+00:00",
+  "titulo": "Livelo oferece até 57,1 % de desconto na compra de pontos para assinantes do Clube – milheiro a partir de R$ 29,13",
+  "link": "https://passageirodeprimeira.com/livelo-oferece-ate-571-de-desconto-na-compra-de-pontos-para-assinantes-do-clube-milheiro-a-partir-de-r-2913/",
+  "fonte": "Passageiro de Primeira",
   "status": "provavel"
  }
 }

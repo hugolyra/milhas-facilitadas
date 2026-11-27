@@ -1,10 +1,10 @@
 {
- "gerado_em": "2026-11-26",
+ "gerado_em": "2026-11-27",
  "custo_origem": {
   "livelo": {
-   "valor": 30.0,
-   "fonte": "preço-alvo 2026 (config)",
-   "data": null
+   "valor": 29.13,
+   "fonte": "https://passageirodeprimeira.com/livelo-oferece-ate-571-de-desconto-na-compra-de-pontos-para-assinantes-do-clube-milheiro-a-partir-de-r-2913/",
+   "data": "2026-11-27"
   },
   "esfera": {
    "valor": 30.0,
@@ -15,12 +15,12 @@
  "programas": {
   "smiles": {
    "aquisicao": {
-    "valor": 16.67,
+    "valor": 16.18,
     "via": "livelo",
     "bonus": 80
    },
    "aquisicao_tipica": {
-    "valor": 16.67,
+    "valor": 16.18,
     "via": "livelo",
     "bonus_mediano": 80.0
    },
@@ -32,12 +32,12 @@
   },
   "azul": {
    "aquisicao": {
-    "valor": 15.32,
-    "via": "premmia",
-    "bonus": 120
+    "valor": 29.13,
+    "via": "livelo",
+    "bonus": 0
    },
    "aquisicao_tipica": {
-    "valor": 30.0,
+    "valor": 29.13,
     "via": "livelo",
     "bonus_mediano": 0
    },
@@ -49,12 +49,12 @@
   },
   "latam": {
    "aquisicao": {
-    "valor": 23.62,
+    "valor": 23.3,
     "via": "livelo",
-    "bonus": 27
+    "bonus": 25
    },
    "aquisicao_tipica": {
-    "valor": 23.81,
+    "valor": 23.12,
     "via": "livelo",
     "bonus_mediano": 26.0
    },
