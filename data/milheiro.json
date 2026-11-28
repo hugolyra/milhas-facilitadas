@@ -1,5 +1,5 @@
 {
- "gerado_em": "2026-11-27",
+ "gerado_em": "2026-11-28",
  "custo_origem": {
   "livelo": {
    "valor": 29.13,
@@ -32,9 +32,9 @@
   },
   "azul": {
    "aquisicao": {
-    "valor": 13.64,
-    "via": "esfera",
-    "bonus": 120
+    "valor": 29.13,
+    "via": "livelo",
+    "bonus": 0
    },
    "aquisicao_tipica": {
     "valor": 13.64,
